@@ -80,7 +80,7 @@ Resources:
     Properties:
       VpcId: !Ref MyVPC
       CidrBlock: 10.0.4.0/24
-      AvailabilityZone: !Select [3, !GetAZs ""]
+      AvailabilityZone: !Select [2, !GetAZs ""]
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
