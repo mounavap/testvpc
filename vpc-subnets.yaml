@@ -75,6 +75,16 @@ Resources:
         - Key: Name
           Value: PrivateSubnet2
 
+ PrivateSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.4.0/24
+      AvailabilityZone: !Select [3, !GetAZs ""]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: PrivateSubnet3
   # ------------------------
   # Route Table for Public Subnet
   # ------------------------
@@ -113,3 +123,5 @@ Outputs:
   PrivateSubnet2Id:
     Description: Private Subnet 2 ID
     Value: !Ref PrivateSubnet2
+
+
