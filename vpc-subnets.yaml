@@ -85,6 +85,7 @@ Resources:
       Tags:
         - Key: Name
           Value: PrivateSubnet3
+          
   # ------------------------
   # Route Table for Public Subnet
   # ------------------------
