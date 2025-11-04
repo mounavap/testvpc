@@ -75,7 +75,7 @@ Resources:
         - Key: Name
           Value: PrivateSubnet2
 
- PrivateSubnet3:
+  PrivateSubnet3:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyVPC
