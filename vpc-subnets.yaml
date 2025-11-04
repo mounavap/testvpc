@@ -85,7 +85,7 @@ Resources:
       Tags:
         - Key: Name
           Value: PrivateSubnet3
-          
+
   # ------------------------
   # Route Table for Public Subnet
   # ------------------------
@@ -124,5 +124,8 @@ Outputs:
   PrivateSubnet2Id:
     Description: Private Subnet 2 ID
     Value: !Ref PrivateSubnet2
+  PrivateSubnet3Id:
+    Description: Private Subnet 3 ID
+    Value: !Ref PrivateSubnet3
 
 
