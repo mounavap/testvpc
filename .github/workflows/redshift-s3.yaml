@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  CloudFormation template to create an S3 bucket and a Redshift cluster.
+
+Parameters:
+  MasterUsername:
+    Type: String
+    Default: admin
+    Description: Master username for the Redshift cluster.
+
+  MasterUserPassword:
+    Type: String
+    NoEcho: true
+    Description: Master password for the Redshift cluster (must be 8–64 chars, include uppercase, lowercase, numbers).
+
+  ClusterType:
+    Type: String
+    Default: single-node
+    AllowedValues:
+      - single-node
+      - multi-node
+    Description: Type of Redshift cluster.
+
+  NodeType:
+    Type: String
+    Default: dc2.large
+    Description: Redshift node type.
+
+  NumberOfNodes:
+    Type: Number
+    Default: 2
+    Description: Number of nodes (only used for multi-node cluster).
+
+Resources:
+  # ------------------------
+  # S3 Bucket
+  # ------------------------
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: mys3fordata
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: mys3fordata
+
+  # ------------------------
+  # Redshift Subnet Group
+  # ------------------------
+  RedshiftSubnetGroup:
+    Type: AWS::Redshift::ClusterSubnetGroup
+    Properties:
+      Description: Subnet group for Redshift
+      SubnetIds:
+        - !Select [0, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: RedshiftSubnetGroup
+
+  # ------------------------
+  # Redshift Parameter Group
+  # ------------------------
+  RedshiftParameterGroup:
+    Type: AWS::Redshift::ClusterParameterGroup
+    Properties:
+      Description: Redshift parameter group
+      ParameterGroupFamily: redshift-1.0
+      Parameters:
+        - ParameterName: require_ssl
+          ParameterValue: "true"
+
+  # ------------------------
+  # Redshift Cluster
+  # ------------------------
+  RedshiftCluster:
+    Type: AWS::Redshift::Cluster
+    Properties:
+      ClusterIdentifier: my-redshift-cluster
+      DBName: myredshiftdb
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: !Ref MasterUserPassword
+      NodeType: !Ref NodeType
+      ClusterType: !Ref ClusterType
+      NumberOfNodes: !If [IsMultiNode, !Ref NumberOfNodes, 1]
+      PubliclyAccessible: false
+      Encrypted: true
+      IamRoles: []
+      ClusterParameterGroupName: !Ref RedshiftParameterGroup
+      ClusterSubnetGroupName: !Ref RedshiftSubnetGroup
+      Tags:
+        - Key: Name
+          Value: my-redshift-cluster
+
+Conditions:
+  IsMultiNode: !Equals [!Ref ClusterType, "multi-node"]
+
+Outputs:
+  S3BucketName:
+    Description: Name of the S3 bucket
+    Value: !Ref MyS3Bucket
+
+  RedshiftClusterIdentifier:
+    Description: Redshift cluster ID
+    Value: !Ref RedshiftCluster
+
+  RedshiftEndpoint:
+    Description: Redshift endpoint address
+    Value: !GetAtt RedshiftCluster.Endpoint.Address
