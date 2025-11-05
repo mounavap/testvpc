@@ -19,7 +19,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-1
-          # no need for role-session-name unless you assume a role
+
+      # ✅ Add this step to verify credentials
+      - name: Verify AWS credentials
+        run: aws sts get-caller-identity
 
       - name: Deploy VPC Stack
         run: |
@@ -28,7 +31,6 @@ jobs:
             --stack-name MygitStack \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
-
 
   deploy-redshift:
     needs: deploy-vpc
@@ -44,6 +46,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-1
+
+      # ✅ Add this step to verify credentials
+      - name: Verify AWS credentials
+        run: aws sts get-caller-identity
 
       - name: Deploy Redshift + S3 Stack
         run: |
